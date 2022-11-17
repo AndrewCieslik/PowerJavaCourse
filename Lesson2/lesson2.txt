@@ -1,0 +1,42 @@
+ćw. 2.1
+Napisz definicję klasy o nazwie Ulamek, reprezentującą ułamek 
+a
+b
+. Twoja klasa powinna posiadać dwa pola typu int, reprezentujące licznik i mianownik ułamka, oraz implementacje odpowiednich konstruktorów i metod, w ten sposób żeby możliwe było wykonanie następujących operacji
+
+Ulamek obj,obj2;
+obj=new Ulamek(6,8);
+obj2=new Ulamek(3,7);
+ 
+System.out.println(obj);
+ 
+double x=obj.rozwDziesietne();
+ 
+Ulamek obj3=obj.plus(obj2);
+Ulamek obj4=obj.minus(obj2);
+Ulamek obj4=obj.razy(obj2);
+ 
+obj.odwroc();
+obj.skroc();
+W przypadku metody rozwDziesietne(), przed wykonaniem dzielenia dwóch liczb typu int rzutuj jedną z nich na typ double, tak jak w przykładzie poniżej
+
+int i=7;
+double x=(double)i;
+Napisz odpowiedni program i przetestuj konstruktory i metody które napisałeś.
+
+ćw. 2.2
+Napisz definicję klasy LiczbaZespolona. Zaimplementuj metody realizujące operacje na liczbach zespolonych.
+
+ćw. 2.3
+Napisz definicję klasy Wektor, której obiekty będą reprezentować wektory w przestrzeni trójwymiarowej. Zaimplementuj metody realizujące dodawanie wektorów, iloczyn wektorowy, iloczyn skalarny i inne operacje na wektorach.
+
+ćw. 2.4
+Napisz definicję klasy WielomianKwadratowy. Zaimplementuj metody służące do dodawania wielomianów, mnożenia wielomianów i wyznaczania miejsc zerowych wielomianu.
+
+ćw. 2.5
+Napisz definicję klasy BigLiczba. Zaimplementuj metodę służącą do testowania czy liczba jest podzielna przez liczbę przekazaną do tej metody jako parametr oraz metodę testującą czy liczba jest liczbą pierwszą.
+
+ćw. 2.6
+Napisz definicję klasy Macierz, której obiekty będą reprezentować macierze 3×3. Zaimplementuj metodę zwracającą wyznacznik macierzy, metodę realizującą transpozycję macierzy, metodę realizującą diagonalizację macierzy, metodę zwracającą macierz odwrotną i inne operacje na macierzach.
+
+autor: Z.Dendzik, 2021
