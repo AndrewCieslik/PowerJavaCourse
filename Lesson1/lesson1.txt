@@ -1,1 +1,151 @@
-lesson1
+Przykład I
+Poniżej znajdziesz kod źródłowy klasy Prostokat - złożonej struktury danych którą użyjemy do tworzenia obiektów typu Prostokat. Klasa zawiera dwa pola (zmienne składowe) typu double, dwa konstruktory oraz metodę (funkcję składową) służącą do wyznaczania pola powierzchni prostokąta. Dalej znajdziesz także kod źródłowy klasy Program, zawierającej metodę o nazwie main(), która zostanie wywołana kiedy zostanie zainicjowane wykonanie klasy Program. W ramach tej metody zostaną wykonane następujące czynności - deklaracja obiektu klasy Prostokat, utworzenie obiektu klasy Prostokat, wywołanie metody pole() na rzecz utworzonego obiektu oraz wydrukowanie do standardowego wyjścia zmiennej x przechowującej wartość którą zwróciła ta metoda.
+
+class Prostokat
+{
+   double dlugosc;
+   double szerokosc;
+ 
+   Prostokat()            
+   {                      
+      this.dlugosc=0.0;   
+      this.szerokosc=0.0; 
+   }                      
+ 
+   Prostokat(double dlugosc,double szerokosc)  
+   {                                          
+      this.dlugosc=dlugosc;                   
+      this.szerokosc=szerokosc;               
+   }                                          
+ 
+   double pole()                
+   {                            
+      return dlugosc*szerokosc; 
+   }                            
+}
+public class Program
+{
+   public static void main(String[] args)         
+   {                                             
+      Prostokat obj;                             
+      obj=new Prostokat(3,4);                    
+      double x=obj.pole();                       
+ 
+      System.out.println("Pole prostokata: "+x); 
+   }                                             
+}
+ćw. 1.1
+W oparciu o informacje z wykładu zidentyfikuj te elementy, przeanalizuj cel ich użycia oraz składnię.
+
+ćw. 1.2
+Posługując się informacjami z wykładu, zestaw odpowiednią jednostkę kompilacji (możesz zapisać obydwie definicje klas w jednym pliku o nazwie takiej jak nazwa klasy publicznej i z rozszerzeniem „.java”). Skompiluj projekt oraz przeanalizuj efekty kompilacji - ilość i nazewnictwo plików zawierających bajtkody dla maszyny wirtualnej Java. Użyj dowolnego edytora (vim, JCreator, NetBeans) oraz kompilatora języka Java (javac), który jest częścią środowiska deweloperskiego Java SE Development Kit (JDK) udostępnianego przez firmę Oracle. Następnie uruchom program za pomocą interpretera (java), będącego częścią środowiska uruchomieniowego Java SE Runtime Environment JRE (które jest także częścią pakietu JDK). Na stronach internetowych można także znaleźć instrukcje dotyczące instalacji i użycia powyższych narzędzi.
+
+ćw. 1.3
+Do klasy Prostokat dodaj implementację metody obwod() zwracającej obwód prostokąta oraz odpowiednie wywołanie tej metody w programie, które umożliwi przetestowanie Twojej implementacji. Skompiluj i przetestuj przykład.
+
+Przykład II
+Napisz implementację klasy Punkt, służącej do reprezentowania punktów na płaszczyźnie. Do klasy Prostokat dodaj pole srodek, będące obiektem klasy Punkt. Dodaj odpowiedni konstruktor umożliwiający zainicjowanie dodatkowego pola informacjami określającymi położenie środka danej figury na płaszczyźnie. Możesz posłużyć się przykładem, który znajdziesz poniżej. Zidentyfikuj składowe klas, przeanalizuj cel ich użycia oraz składnię. Zestaw odpowiednią jednostkę kompilacji i przetestuj przykład.
+
+class Punkt
+{
+   double x;
+   double y;
+ 
+   Punkt(double x,double y) 
+   {                        
+      this.x=x;             
+      this.y=y;             
+   }                        
+ 
+   public String toString()          
+   {                                 
+      return "[x: "+x+", y: "+y+"]"; 
+   }                                 
+}
+class Prostokat
+{
+   double dlugosc;
+   double szerokosc;
+   Punkt wierzcholek;
+ 
+   Prostokat(double dlugosc,double szerokosc) 
+   {                                          
+      this.dlugosc=dlugosc;                   
+      this.szerokosc=szerokosc;               
+      this.wierzcholek=new Punkt(0,0);        
+   }                                          
+ 
+   Prostokat(double dlugosc,double szerokosc, Punkt wierzcholek) 
+   {                                                             
+      this.dlugosc=dlugosc;                                      
+      this.szerokosc=szerokosc;                                  
+      this.wierzcholek=wierzcholek;                              
+   }                                                             
+ 
+   public String toString()                                                   
+   {                                                                          
+      return "[dl: "+dlugosc+", sz: "+szerokosc+"]" + wierzcholek.toString(); 
+   }                                                                          
+ 
+   double pole()                
+   {                            
+      return dlugosc*szerokosc; 
+   }                            
+}
+public class Program
+{
+   public static void main(String[] args)     
+   {                                          
+      Punkt obj1;                             
+      obj1=new Punkt(-1,1);                   
+      System.out.println("punkt: "+obj1);     
+ 
+      Prostokat obj2;                         
+      obj2=new Prostokat(3,4,obj1);           
+      System.out.println("prostokat: "+obj2); 
+ 
+      double p=obj2.pole();                   
+      System.out.println("pole: "+p);         
+   }                                          
+}
+ćw. 1.4
+Odpowiedz na pytanie do czego wykorzystywana jest metoda public String toString().
+
+ćw. 1.5
+W klasie Punkt zaimplementuj metodę void przesun(double dx,double dy), która będzie realizowała translację punktu o wektor (dx,dy). W programie, przetestuj wywołanie tej metody na przykładzie dowolnego punktu.
+
+Punkt obj;
+obj = new Punkt(0,0);
+System.out.println(obj);
+ 
+obj.przesun(-1,3);
+System.out.println(obj);
+ćw. 1.6
+Także w klasie Prostokat zaimplementuj metodę metodę void przesun(double u,double v), która będzie realizowała translację figury (przesuwała wierzchołek prostokąta) o wektor (dx,dy). W definicji tej metody wykorzystaj wywołanie metody przesun() z klasy Punkt. W programie, przetestuj wywołanie tej metody na przykładzie dowolnego prostokąta.
+
+Punkt obj;
+obj = new Punkt(0,0);
+ 
+Prostokat obj2;
+obj2=new Prostokat(obj,3,4);
+System.out.println(obj2);
+ 
+obj2.przesun(7,-3);
+System.out.println(obj2);
+ćw. 1.7
+Do Twojego projektu dodaj definicję klasy Okrag zawierającej pola promien i srodek (okręgu). Napisz implementacje odpowiednich konstruktorów oraz metod, podobnie jak w klasie Prostokat. Przetestuj przykład.
+
+ćw. 1.8
+Do klas Prostokat i Okrag dodaj implementacje metody boolean zawiera(Punkt obj). W programie, przetestuj na przykładzie kilku różnych prostokątów i punktów.
+
+ćw. 1.9
+Do klasy Okrag dodaj implementacje metody boolean przecina(Okrag obj). W programie, przetestuj na przykładzie kilku różnych okręgów.
+
+ćw. 1.10
+Do klasy Prostokat dodaj implementacje metody boolean przecina(Okrag obj). W programie, przetestuj na przykładzie kilku różnych prostokątów i okręgów. Wskazówka - rozważ rzuty okręgu i prostokąta na osie X i Y.
+
+ćw. 1.11
+Za pomocą narzędzia javadoc (standardowe narzędzie dostarczane z pakietem JDK) utwórz standardową dokumentację w formacie html do klas Prostokat, Okrag i Punkt, zawierającą opisy do wszystkich pól i metod tych klas.
+
+Autor:
+Z. Dendzik, 2021
