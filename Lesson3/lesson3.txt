@@ -1,0 +1,179 @@
+Wykorzystanie klas bibliotecznych Java Platform API, dokumentacja
+Wprowadzenie
+W skład platformy Java wchodzą dwa komponenty - maszyna wirtualna (interpreter bajtkodów) oraz biblioteka klas i interfejsów. W dzisiejszym przykładzie przeanalizujemy sposoby wykorzystania klas bibliotecznych wchodzących w skład każdej pełnej implementacji platformy Java. Dzisiejsze ćwiczenie będzie także związane z wyrobieniem niezbędnej wprawy w posługiwaniu się dokumentacją (Java Platform API Specification). Podobnie jak w pozostałych przykładach, jeżeli w ćwiczeniu wykorzystana została klasa biblioteczna, to jej pierwsze wystąpienie będzie jednocześnie linkiem do jej dokumentacji.
+
+Przykład I
+Poniżej znajdziesz kod źródłowy programu który tworzy obiekt reprezentujący prostokąt o zadanym wierzchołku, długości i wysokości i wykonuje na nim operację translacji o wektor (1,-1). Przeanalizuj przykład i porównaj użycie klasy bibliotecznej java.awt.Rectangle z użyciem Twojej własnej implementacji klasy Prostokat z poprzednich zajęć. Przypomnij sobie zagadnienia nazewnictwa klas oraz definiowania i importowania pakietów (wykład) i przeanalizuj je w kontekście wykorzystania klas Java Platform API.
+
+import java.awt.Rectangle;
+public class Program
+{
+   public static void main(String[] args)    
+   {                                        
+      Rectangle obj=new Rectangle(0,0,4,3); 
+ 
+      obj.translate(1,-1);                  
+ 
+      System.out.println(obj);              
+   }                                        
+}
+ćw. 3.1
+Zapoznaj się z dokumentacją klasy bibliotecznej java.awt.Rectangle. W oparciu o informacje z poprzednich ćwiczeń zidentyfikuj pola, konstruktory i metody tej klasy i odpowiedz na pytanie jaka jest ich interpretacja i do czego służą.
+
+ćw. 3.2
+Utwórz obiekt obj1 reprezentujący prostokąt o wierzchołku w punkcie o współrzędnych (0,0), długości 4 i wysokości 3 oraz obiekt obj2 reprezentujący prostokąt o wierzchołku w punkcie (1,1), długości 4 i wysokości 3. Posługując się dokumentacją klasy java.awt.Rectangle znajdź odpowiednie metody i napisz program który utworzy obiekt reprezentujący prostokąt będący przecięciem (częścią wspólną) obj1 i obj2. Skompiluj i przetestuj przykład.
+
+ćw. 3.3
+Utwórz obiekt obj1 reprezentujący prostokąt o wierzchołku w punkcie o współrzędnych (1,1), długości 4 i wysokości 5 oraz obiekt obj2 reprezentujący prostokąt o wierzchołku w punkcie (2,0), długości 2 i wysokości 3. Posługując się dokumentacją klasy java.awt.Rectangle znajdź odpowiednie metody i napisz program który sprawdzi czy prostokąt obj1 zawiera się w prostokącie obj2. Skompiluj i przetestuj przykład.
+
+ćw. 3.4
+Utwórz obiekt obj reprezentujący prostokąt o wierzchołku w punkcie o współrzędnych (-3,0), długości 6 i wysokości 3. Posługując się dokumentacją klasy java.awt.Rectangle znajdź odpowiednie metody i napisz program który sprawdzi czy punkt o współrzędnych (2,-1) leży wewnątrz prostokąta obj. Skompiluj i przetestuj przykład.
+
+ćw. 3.5
+Utwórz obiekt obj1 reprezentujący prostokąt o wierzchołku w punkcie o współrzędnych (1,1), długości 4 i wysokości 5 oraz obiekt obj2 reprezentujący prostokąt o wierzchołku w punkcie (4,-3), długości 4 i wysokości 3. Posługując się dokumentacją klasy java.awt.Rectangle znajdź odpowiednie metody i napisz program który sprawdzi czy prostokąt obj1 przecina prostokąt obj2. Skompiluj i przetestuj przykład.
+
+Przykład II
+Poniżej znajdziesz przykład wykorzystania klas Java Platform API do wprowadzenia danych z klawiatury. Przykład ilustruje także koncepcję obsługi wyjątków i związaną z tym składnię.
+
+import java.io.*;
+public class A
+{
+   static double KURS=3.8;
+ 
+   public static void main(String[] args)                                        
+   {                                                                             
+      try                                                                        
+      {                                                                          
+         BufferedReader br=new BufferedReader(new InputStreamReader(System.in)); 
+ 
+         System.out.print("$: ");                                                
+         String str=br.readLine();                                               
+ 
+         double x=Double.parseDouble(str);                                       
+         System.out.println("PLN: "+x*KURS);                                     
+      }                                                                          
+ 
+      catch(IOException e1)                                                      
+      {                                                                          
+         System.out.println("wyjatek operacji wejscia/wyjscia");                 
+      }                                                                          
+ 
+      catch(NumberFormatException e2)                                            
+      {                                                                          
+         System.out.println("nieprawidlowy format liczby");                      
+      }                                                                          
+   }                                                                             
+}
+ćw. 3.6
+Rozwiń przykład w ten sposób żeby umożliwić wybór pomiędzy kilkoma różnymi walutami i następnie przeliczenie ich po danym kursie.
+
+Przykład III
+Poniżej znajdziesz przykład wykorzystania klas Java Platform API do prostych operacji na plikach tekstowych. Przykład ilustruje także koncepcję obsługi wyjątków i związaną z tym składnię.
+
+import java.io.*;
+public class A
+{
+   public static void main(String[] args)                                                        
+   {                                                                                             
+      BufferedReader br=new BufferedReader(new InputStreamReader(System.in));                    
+ 
+      try                                                                                        
+      {                                                                                          
+         System.out.print("imie: ");                                                             
+         String imie=br.readLine();                                                              
+         System.out.print("nazwisko: ");                                                         
+         String nazwisko=br.readLine();                                                          
+ 
+         PrintWriter plik1=new PrintWriter(new BufferedWriter(new FileWriter("plik.txt",true))); 
+         plik1.println(imie+" "+nazwisko);                                                       
+         plik1.close();                                                                          
+      }                                                                                          
+      catch(Exception e){System.out.println(e);}                                                 
+ 
+ 
+ 
+      System.out.println("\n-- z pliku --");                                                     
+ 
+      try                                                                                        
+      {                                                                                          
+         BufferedReader plik2=new BufferedReader(new FileReader("plik.txt"));                    
+         String str;                                                                             
+ 
+         while(plik2.ready())                                                                    
+         {                                                                                       
+            str=plik2.readLine();                                                                
+            System.out.println(str);                                                             
+         }                                                                                       
+ 
+         plik2.close();                                                                          
+      }                                                                                          
+      catch(Exception e){System.out.println(e);}                                                 
+   }                                                                                             
+}
+ćw. 3.7
+Napisz klasę Prostokat wyposażoną w metodę void save(String plik) zapisującą zawartość wszystkich pól tego prostokąta do pliku tekstowego o podanej nazwie.
+
+Przykład IV
+Napisz program demonstrujący użycie klas z dowolnej dostępnej ZEWNĘTRZNEJ biblioteki (zastosowania sieciowe, graficzne, matematyczne lub dowolne inne). Poniżej znajdziesz przykład wykorzystania zewnętrznej biblioteki open source zawierającej implementację szyfrowania asymetrycznym algorytmem RSA, którą można pobrać z www.bouncycastle.org. Możesz użyć tej biblioteki lub dowolnej innej według Twojego uznania.
+
+import java.io.*;
+import java.security.*;
+import javax.crypto.*;
+public class RSATest
+{
+   public static void main(String args[]) throws Exception                                                        
+   {                                                                                                              
+      System.out.println("zaczyna rejestrowac provider");                                                         
+      Provider prov = new org.bouncycastle.jce.provider.BouncyCastleProvider();                                   
+      Security.addProvider(prov);                                                                                 
+ 
+      System.out.println("zaczyna generowac generator pary kluczy");                                              
+      KeyPairGenerator kpgen = KeyPairGenerator.getInstance("RSA","BC");                                          
+      kpgen.initialize(1024, new java.security.SecureRandom());                                                   
+ 
+      System.out.println("zaczyna generowac pare kluczy");                                                        
+      KeyPair pair = kpgen.genKeyPair();                                                                          
+ 
+      System.out.println("zaczyna generowac klucz prywatny");                                                     
+      PrivateKey priv = pair.getPrivate();                                                                        
+ 
+      System.out.println("zaczyna generowac klucz publiczny");                                                    
+      PublicKey pub = pair.getPublic();                                                                           
+ 
+ 
+ 
+      //-- CipherStream: szyfrowanie --                                                                           
+      System.out.println("zaczyna generowac cipher");                                                             
+      javax.crypto.Cipher c1 = javax.crypto.Cipher.getInstance("RSA/ECB/PKCS1Padding","BC");                      
+      c1.init(Cipher.ENCRYPT_MODE,pub);                                                                           
+ 
+      System.out.println("zaczyna zestawiac strumien wyjsciowy");                                                 
+      ObjectOutputStream out=new ObjectOutputStream(new CipherOutputStream(new FileOutputStream("plik.txt"),c1)); 
+ 
+      System.out.println("zaczyna zapisywac obiekt do strumienia");                                               
+      out.writeObject(new String("pozdrowienia od cioci"));                                                       
+ 
+      out.flush();                                                                                                
+      out.close();                                                                                                
+ 
+ 
+ 
+      //-- CipherStream: deszyfrowanie  --                                                                        
+      System.out.println("zaczyna generowac cipher");                                                             
+      javax.crypto.Cipher c2 = javax.crypto.Cipher.getInstance("RSA/ECB/PKCS1Padding","BC");                      
+      c2.init(Cipher.DECRYPT_MODE,priv);                                                                          
+ 
+      System.out.println("zaczyna zestawiac strumien wejsciowy");                                                 
+      ObjectInputStream in=new ObjectInputStream(new CipherInputStream(new FileInputStream("plik.txt"),c2));      
+ 
+      System.out.println("zaczyna czytac obiekt ze strumienia");                                                  
+      String str=(String)in.readObject();                                                                         
+ 
+      System.out.println("\n-- "+str+" --\n");                                                                    
+      in.close();                                                                                                 
+   }                                                                                                              
+}
+ćw. 3.8
+Na podstawie powyższego przykładu napisz program który pozwoli na wprowadzanie z klawiatury krótkich notatek i zapisywaniu ich do pliku zaszyfrowanego kluczem publicznym (RSA) oraz program pozwalający na deszyfrowaniu i odczytywaniu takich notatek.
+
+Zrodlo: dziendzik.pl
