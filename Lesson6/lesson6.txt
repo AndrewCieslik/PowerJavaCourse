@@ -1,0 +1,183 @@
+Zrodlo: Z. Dendzik, 2021
+
+Strumienie, gniazda sieciowe i wątki II - serwer http
+Wprowadzenie
+Kolejnym przykładem programowania dla platformy Java w zakresie gniazd sieciowych, strumieni danych i wielowątkowości będzie implementacja prostego serwera http. Protokół http jest opisany w odpowiednim dokumencie RFC 2616 (http 1.1). Nasza implementacja będzie wykorzystywała strumienie znakowe, do pobierania danych przesyłanych przez przeglądarkę do serwera, a także strumieni bajtowych - do przesyłania żądanych dokumentów (pamiętaj że oprócz tekstu html, Twój serwer będzie także wysyłał dane binarne - grafikę, dźwięk, czy bajtkody apletów).
+
+Przykład I
+Poniżej znajdziesz prostą implementację serwera http w języku Java. Przeanalizuj dokładnie przykład, zestaw odpowiednią jednostkę kompilacji (pakiet, pliki źródłowe itd), a następnie skompiluj i przetestuj przykład. Oczywiście, klientem serwera będzie przeglądarka internetowa. W powyższym przykładzie, w zasadzie wystarczyłoby użycie strumieni InputStream i OutputStream. Wyspecjalizowane strumienie BufferedReader i DataOutputStream zostały użyte ze względu na wygodę. BufferedReader posiada funkcjonalność (metody) umożliwiającą wygodne operowanie na strumieniach danych tekstowych (request). DataOutputStream posiada funkcjonalność umożliwiającą wygodne operowanie na strumieniach binarnych (response). Wysyłanie tekstu do przeglądarki bezpośrednio za pośrednictwem obiektu OutputStream wymagałoby użycia metody getBytes() i zapisania pobranej tablicy bajtów za pomocą metody write(byte[] bajty).
+
+SerwerHTTP.java
+import java.io.*;
+import java.net.*;
+ 
+public class SerwerHTTP
+{
+   public static void main(String[] args) throws IOException                
+   {                                                                       
+      ServerSocket serv=new ServerSocket(80);                              
+ 
+      while(true)                                                          
+      {                                                                    
+         //przyjecie polaczenia                                            
+         System.out.println("Oczekiwanie na polaczenie...");               
+         Socket sock=serv.accept();                                        
+ 
+         //strumienie danych                                               
+         InputStream is=sock.getInputStream();                             
+         OutputStream os=sock.getOutputStream();                           
+         BufferedReader inp=new BufferedReader(new InputStreamReader(is)); 
+         DataOutputStream outp=new DataOutputStream(os);                   
+ 
+         //przyjecie zadania (request)                                     
+         String request=inp.readLine();                                    
+ 
+         //wyslanie odpowiedzi (response)                                  
+         if(request.startsWith("GET"))                                     
+         {                                                                 
+            //response header                                              
+            outp.writeBytes("HTTP/1.0 200 OK\r\n");                        
+            outp.writeBytes("Content-Type: text/html\r\n");                
+            outp.writeBytes("Content-Length: \r\n");                       
+            outp.writeBytes("\r\n");                                       
+ 
+            //response body                                                
+            outp.writeBytes("<html>\r\n");                                 
+            outp.writeBytes("<H1>Strona testowa</H1>\r\n");                
+            outp.writeBytes("</html>\r\n");                                
+         }                                                                 
+         else                                                              
+         {                                                                 
+            outp.writeBytes("HTTP/1.1 501 Not supported.\r\n");            
+         }                                                                 
+ 
+         //zamykanie strumieni                                             
+         inp.close();                                                      
+         outp.close();                                                     
+         sock.close();                                                     
+      }                                                                    
+   }                                                                       
+}
+ćw. 6.1
+Przetestuj powyższy przykład. Przypomnij sobie podstawowe koncepcje związane z protokołem http, czyli ze sposobem w jaki przeglądarka internetowa komunikuje się z serwerem www. Przejrzyj i zapoznaj się ze strukturą odpowiednich dokumentów RFC, opisujących protokoły http i https.
+
+ćw. 6.2
+Napisz fragment kodu który wydrukuje do standardowego wyjścia żądanie (request), który przeglądarka wysyła do serwera. Przeanalizuj jego treść. W powyższym przykładzie do zmiennej request zapisywany jest tylko pierwszy wiersz żądania (w ogólności może ich być więcej). Napisz fragment kodu, który wydrukuje do standardowego wyjścia (System.out.println()) komplet informacji przesłanych przez przeglądarkę.
+
+ćw. 6.3
+Napisz fragment kodu który ze zmiennej (tekstowej) request pobierze nazwę pliku, o który prosi przeglądarka i wydrukuje tę nazwę do standardowego wyjścia. Możesz w tym celu użyć metod klasy java.lang.String.
+
+ćw. 6.4
+Napisz odpowiedni fragment kodu który utworzy obiekt java.io.FileInputStream dla pliku o podanej nazwie. Jeżeli taki plik nie istnieje, Twój serwer powinien wysłać do przeglądarki odpowiednią informację poprzedzoną nagłówkiem: „HTTP/1.0 404 Not Found”.
+
+ćw. 6.5
+Utwórz bufor (tablicę bajtów o rozmiarze np. 1024), który posłuży do przechowywania bajtów pobieranych z pliku, przed wysłaniem ich do przeglądarki. Napisz odpowiedni fragment kodu, który będzie pobierał bajty z pliku do bufora, a następnie wysyłał zawartość bufora do przeglądarki która przysłała żądanie. Możesz to zrealizować np. wg. następującego schematu:
+
+FileInputStream fis = new FileInputStream(nazwaPliku);
+ 
+byte[] bufor;
+bufor=new byte[1024];
+int n=0;
+ 
+while ((n = fis.read(bufor)) != -1 )
+{
+	outp.write(bufor, 0, n);
+}
+ćw. 6.6
+Za pomocą odpowiednich metody int available() klasy java.io.FileInputStream pobierz informację o ilości bajtów w pliku i wykorzystaj ją do zdefiniowania nagłówka Content-Length. Odpowiedni nagłówek Content-Type zdefiniuj na podstawie rozszerzenia pliku - dla plików html i htm: „Content-Type: text/html\r\n”, dla pozostałych plików: „Content-Type: \r\n”.
+
+Przykład II
+Poniżej znajdziesz szkielet implementacji serwera wielowątkowego, który dla każdego pojawiającego się żądania tworzy oddzielny wątek, który zajmuje się obsługą tego żądania. Metoda run() zawiera „przebieg życia” wątku. Użytkowe serwery zwykle tworzą pewną pulę wątków (thread poll). Z tej puli, każdemu żądaniu przydzielany jest wątek który zajmie się jego obsługą. Po obsłużeniu żądania wątek powraca do puli.
+
+SerwerHTTP.java
+import java.io.*;
+import java.net.*;
+ 
+class ObslugaZadania extends Thread
+{
+   Socket sock;
+ 
+   ObslugaZadania(Socket klientSocket)  
+   {                                   
+      this.sock=klientSocket;          
+   }                                   
+ 
+   public void run() 
+   {                 
+ 
+   }                 
+}
+ 
+public class SerwerHTTP
+{
+   public static void main(String[] args) throws IOException     
+   {                                                            
+      ServerSocket serv=new ServerSocket(80);                   
+ 
+      while(true)                                               
+      {                                                         
+         //przyjecie polaczenia                                 
+         System.out.println("Oczekiwanie na polaczenie...");    
+         Socket sock=serv.accept();                             
+ 
+         //tworzenie watku obslugi tego polaczenia              
+         new ObslugaZadania(sock).start();                      
+      }                                                         
+   }                                                            
+}
+ćw. 6.7
+Na podstawie powyższego przykładu napisz implementację serwera wielowątkowego, który dla każdego żądania utworzy nowy wątek którego zadaniem będzie obsłużenie tego żądania. Napisz stronę internetową (html) zawierającą co najmniej 5 obrazków oraz kilka apletów w Javie i przetestuj dokładnie całą implementację serwera. Odpowiedz na pytanie ile żądań musi wysłać przeglądarka żeby otrzymać taką stronę. Zaobserwuj czy jest różnica w wydajności pomiędzy serwerem iteracyjnym (jednowątkowym) i serwerem wielowątkowym.
+
+ćw. 6.8
+Rozwiń Twój serwer w taki sposób żeby podczas uruchamiania można było podać dowolny numer portu, jako parametr przekazywany z wiersza poleceń systemu operacyjnego. Żeby przekonwertować tekst do zmiennej typu int, możesz posłużyć się metodą statyczną parseInt() z klasy java.lang.Integer. W przypadku gdy ten numer portu jest już wykorzystywany przez inną aplikację sieciową, wystąpi wyjątek java.net.BindException. Obsłuż ten wyjątek.
+
+ćw. 6.9
+Zaimplementuj zapis „działalności” serwera do pliku z logami. Każdy wpis powinien zawierać żądanie (request) i być opatrzony datą (java.util.Date lub java.util.Calendar) i adresem IP (odpowiednia metoda klasy java.net.Socket) przeglądarki która to żądanie zgłosiła.
+
+Przykład III
+Poniżej znajdziesz szkielet uproszczonej implementacji serwera https, wykorzystujący możliwości Java Platform API w zakresie bezpiecznych gniazd sieciowych wykorzystujących protokół SSL (Secure Socket Layer).
+
+SerwerHTTPS.java
+import java.io.*;
+import java.net.*;
+import javax.net.ssl.*;
+ 
+public class ServerHTTPS
+{
+ 
+   public static void main(String[] args) throws IOException                     
+   {                                                                             
+      SSLServerSocketFactory fact;                                               
+      fact = (SSLServerSocketFactory)SSLServerSocketFactory.getDefault();        
+      ServerSocket servsock = fact.createServerSocket(8080);                     
+ 
+      while (true)                                                               
+      {                                                                          
+         try                                                                     
+         {                                                                       
+            Socket sock = servsock.accept();                                     
+ 
+            OutputStream out;                                                    
+            out=sock.getOutputStream();                                          
+ 
+            BufferedReader in;                                                   
+            in=new BufferedReader(new InputStreamReader(sock.getInputStream())); 
+ 
+ 
+ 
+            in.close();                                                          
+            out.close();                                                         
+            sock.close();                                                        
+         }                                                                       
+         catch (Exception e)                                                     
+         {                                                                       
+            e.printStackTrace();                                                 
+         }                                                                       
+      }                                                                          
+   }                                                                             
+}
+ćw. 6.10*
+Na podstawie powyższego przykładu zaimplementuj obsługę protokołu https.
+
+
+Z. Dendzik, 2021
