@@ -1,0 +1,229 @@
+Zrodlo: Z. Dendzik, 2021
+
+Strumienie, gniazda sieciowe i wątki I - komunikator internetowy
+Wprowadzenie
+Ważnym i bardzo często wykorzystywanym obszarem zastosowań platformy Java jest programowanie aplikacji sieciowych oraz, co często jest z tym związane, programowanie wielowątkowe. Dzisiejsze zajęcia będą poświęcone wykorzystaniu najważniejszych klas bibliotecznych pakietów java.io i java.net oraz podstawowych umiejętności programowania aplikacji wielowątkowych. Jak zapewne pamiętasz z wykładu, podstawowy system obsługi wejścia-wyjścia w Javie (pakiet java.io) jest oparty o cztery abstrakcyjne klasy biblioteczne InputStream, OutputStream, Reader i Writer (oraz odpowiednie klasy konkretne, np. BufferedReader, PrintWriter). InputStreami OutputStream reprezentują strumienie binarne, natomiast Reader i Writer reprezentują strumienie tekstowe. Dzisiejsza implementacja tekstowego komunikatora internetowego będzie oczywiście wykorzystywała strumienie tekstowe. Dzisiejsze ćwiczenia mają także na celu przećwiczenie obsługi wyjątków.
+
+Przykład I
+Poniżej znajdziesz kod źródłowy klas Serwer i Klient. Zestaw z nich dwie oddzielne jednostki kompilacji, skompiluj każdą z nich, uruchom (najpierw serwer, potem klienta) i przetestuj. W miarę możliwości przykład możesz także przetestować wspólnie z kolegą/koleżanką używając dwóch komputerów w sieci. Zarówno klient jak i serwer posiadają statyczne pole PORT przechowujące numer portu (int z przedziału 0 do 65535 - numery portów od 0 do 1023 są określane jako „well known ports” i zarezerwowane na standardowe usługi takie, jak www, ssh czy poczta elektroniczna, numery od 1024 do 49151 są określane jako „registered”, a numery od 49152 do 65535 jako „dynamic/private”). Klasa Klient posiada także pole statyczne HOST przechowujące adres serwera z którym klient nawiąże połączenie.
+
+Serwer.java
+import java.io.*;
+import java.net.*;
+ 
+public class Serwer
+{
+   public static final int PORT=50007;
+ 
+   public static void main(String args[]) throws IOException                  
+   {                                                                         
+      //tworzenie gniazda serwerowego                                        
+      ServerSocket serv;                                                     
+      serv=new ServerSocket(PORT);                                           
+ 
+      //oczekiwanie na polaczenie i tworzenie gniazda sieciowego             
+      System.out.println("Nasluchuje: "+serv);                               
+      Socket sock;                                                           
+      sock=serv.accept();                                                    
+      System.out.println("Jest polaczenie: "+sock);                          
+ 
+      //tworzenie strumienia danych pobieranych z gniazda sieciowego         
+      BufferedReader inp;                                                    
+      inp=new BufferedReader(new InputStreamReader(sock.getInputStream()));  
+ 
+      //komunikacja - czytanie danych ze strumienia                          
+      String str;                                                            
+      str=inp.readLine();                                                    
+      System.out.println("<Nadeszlo:> " + str);                              
+ 
+      //zamykanie polaczenia                                                 
+      inp.close();                                                           
+      sock.close();                                                          
+      serv.close();                                                          
+   }                                                                         
+}
+Klient.java
+import java.io.*;
+import java.net.*;
+ 
+public class Klient
+{
+   public static final int PORT=50007;
+   public static final String HOST = "127.0.0.1";
+ 
+   public static void main(String[] args) throws IOException                            
+   {                                                                                   
+      //nawiazanie polaczenia z serwerem                                               
+      Socket sock;                                                                     
+      sock=new Socket(HOST,PORT);                                                      
+      System.out.println("Nawiazalem polaczenie: "+sock);                              
+ 
+      //tworzenie strumieni danych pobieranych z klawiatury i dostarczanych do socketu 
+      BufferedReader klaw;                                                             
+      klaw=new BufferedReader(new InputStreamReader(System.in));                       
+      PrintWriter outp;                                                                
+      outp=new PrintWriter(sock.getOutputStream());                                    
+ 
+      //komunikacja - czytanie danych z klawiatury i przekazywanie ich do strumienia   
+      System.out.print("<Wysylamy:> ");                                                
+      String str=klaw.readLine();                                                      
+      outp.println(str);                                                               
+      outp.flush();                                                                    
+ 
+      //zamykanie polaczenia                                                           
+      klaw.close();                                                                    
+      outp.close();                                                                    
+      sock.close();                                                                    
+   }                                                                                   
+}
+ćw. 5.1
+Na podstawie przykładu napisz implementację komunikatora internetowego, który będzie pozwalał na wprowadzanie kolejnych komunikatów z klawiatury i przesyłaniu ich do serwera.
+
+ćw. 5.2
+Na podstawie powyższego przykładu i informacji z wykładu napisz prostą implementację tekstowego komunikatora internetowego działającego w trybie simpleks. Twoja implementacja powinna obejmować następujące etapy - (1) nawiązanie połączenia (ten etap został już zrobiony w przykładzie), (2) utworzenie obiektów reprezentujących strumienie danych pobieranych z klawiatury i z gniazda sieciowego oraz strumienie danych dostarczanych do gniazda sieciowego, (3) etap właściwej komunikacji w trybie simpleks (pętla wykonująca naprzemian odbieranie i wysyłanie komunikatów tekstowych) oraz (4) zakończenie komunikacji i (5) zamknięcie połączenia. Komunikacja powinna się odbywać do momentu przesłania przez którąkolwiek ze stron komunikatu „koniec” albo „KONIEC” (pomocna może tu być metoda equalsIgnoreCase() klasy String). Po przesłaniu takiego komunikatu zarówno klient jak i serwer powinny wypisać komunikat „Koniec polaczenia” i zakończyć działanie.
+
+ćw. 5.3
+Po stronie klienta zidentyfikuj i obsłuż wyjątek (try{}catch()) który wystąpi np. wtedy kiedy klient próbuje nawiązać połączenie z serwerem w sytuacji kiedy pod wskazanym adresem i numerem portu nie działa żaden serwer. W przypadku wystąpienia tego wyjątku Twoj komunikator powinien wypisać komunikat „Polaczenie zostalo przerwane” i zakończyć działanie.
+
+ćw. 5.4
+Po stronie klienta obsłuż wyjątek java.net.SocketException (try/catch) oznaczający wystąpienie błędu związanego z protokołem TCP. Wystąpienie tego wyjątku można zasymulować wyciągając wtyczkę z gniazda karty sieciowej.
+
+Przykład II
+Poniżej znajdziesz szkielet implementacji komunikatora internetowego działającego w trybie duplex (komunikaty mogą być wysyłane i odbierane równolegle i w dowolnych sekwencjach, niekoniecznie na przemian). W tym przypadku wysyłanie komunikatów i odbieranie komunikatów musi odbywać się w oddzielnych wątkach.
+
+Serwer.java
+import java.io.*;
+import java.net.*;
+ 
+class Odbior extends Thread
+{
+   Socket sock;
+   BufferedReader sockReader;
+ 
+   public Odbior(Socket sock) throws IOException                                         
+   {                                                                                    
+      this.sock=sock;                                                                   
+      this.sockReader=new BufferedReader(new InputStreamReader(sock.getInputStream())); 
+   }                                                                                    
+ 
+   public void run() 
+   {                 
+ 
+   }                 
+}
+ 
+public class Serwer
+{
+   public static final int PORT=50007;
+ 
+   public static void main(String args[]) throws IOException      
+   {                                                             
+      //tworzenie gniazda serwerowego                            
+      ServerSocket serv;                                         
+      serv=new ServerSocket(PORT);                               
+ 
+      //oczekiwanie na polaczenie i tworzenie gniazda sieciowego 
+      System.out.println("Nasluchuje: "+serv);                   
+      Socket sock;                                               
+      sock=serv.accept();                                        
+      System.out.println("Jest polaczenie: "+sock);              
+ 
+      //tworzenie watka odbierajacego                            
+      new Odbior(sock).start();                                  
+ 
+ 
+ 
+      //zamykanie polaczenia                                     
+      serv.close();                                              
+      sock.close();                                              
+   }                                                             
+}
+Klient.java
+import java.io.*;
+import java.net.*;
+ 
+class Odbior extends Thread
+{
+   Socket sock;
+   BufferedReader sockReader;
+ 
+   public Odbior(Socket sock) throws IOException                                         
+   {                                                                                    
+      this.sock=sock;                                                                   
+      this.sockReader=new BufferedReader(new InputStreamReader(sock.getInputStream())); 
+   }                                                                                    
+ 
+   public void run() 
+   {                 
+ 
+   }                 
+}
+ 
+public class Klient
+{
+   public static final int PORT=50007;
+   public static final String HOST = "127.0.0.1";
+ 
+   public static void main(String[] args) throws IOException  
+   {                                                         
+      //nawiazanie polaczenia z serwerem                     
+      Socket sock;                                           
+      sock=new Socket(HOST,PORT);                            
+      System.out.println("Nawiazalem polaczenie: "+sock);    
+ 
+      //tworzenie watka odbierajacego                        
+      new Odbior(sock).start();                              
+ 
+ 
+ 
+      //zamykanie polaczenia                                 
+      sock.close();                                          
+   }                                                         
+}
+ćw. 5.5
+Na podstawie powyższego przykładu napisz implementację komunikatora internetowego działającego w trybie duplex (komunikaty mogą być wysyłane i odbierane równolegle i w dowolnych sekwencjach, niekoniecznie na przemian). W tym przypadku wysyłanie komunikatów i odbieranie komunikatów musi odbywać się w oddzielnych wątkach. Jak zapewne pamiętasz z wykładu, trzeba w tym celu napisać klasę która rozszerza klasę biblioteczną java.lang.Thread i umieścić instrukcje składające się na cykl życia wątku w metodzie public void run() tej klasy. Poniżej znajdziesz szkielet takiej klasy. Następnie w wątku głównym trzeba utworzyć obiekt tej klasy i wywołać na jego rzecz metodę start(). Podobnie jak w poprzednim przykładzie, Twój komunikator powinien działać do momentu, kiedy jedna ze stron prześle komunikat „koniec” albo „KONIEC”. Po przesłaniu takiego komunikatu zarówno klient jak i serwer powinny wypisać komunikat „Koniec połączenia” i zakończyć działanie.
+
+Przykład III
+Poniżej znajdziesz szkielet implementacji serwera wielowątkowego, który oczekuje na połączenia klientów, a następnie dla każdego klienta tworzy oddzielny wątek który zajmie się obsłużeniem tego klienta.
+
+Serwer.java
+import java.io.*;
+import java.net.*;
+ 
+class ObslugaZadania extends Thread
+{
+   Socket sock;
+ 
+   ObslugaZadania(Socket klientSocket)  
+   {                                   
+      this.sock=klientSocket;          
+   }                                   
+ 
+   public void run() 
+   {                 
+ 
+   }                 
+}
+ 
+public class Serwer
+{
+   public static void main(String[] args) throws IOException     
+   {                                                            
+      ServerSocket serv=new ServerSocket(80);                   
+ 
+      while(true)                                               
+      {                                                         
+         //przyjecie polaczenia                                 
+         System.out.println("Oczekiwanie na polaczenie...");    
+         Socket sock=serv.accept();                             
+ 
+         //tworzenie watku obslugi tego polaczenia              
+         new ObslugaZadania(sock).start();                      
+      }                                                         
+   }                                                            
+}
+ćw. 5.6
+Na podstawie poniższego przykładu napisz implementację serwera który będzie czekał na zgłoszenia klientów, przyjmował połączenia, a następnie przekazywał komunikaty otrzymane od dowolnego klienta do wszystkich pozostałych. Powinieneś w tym celu zaimplementować klasę której obiekt będzie wątkiem reprezentującym obsługę danego klienta. Po nawiązaniu połączenia z kolejnym klientem, Twój serwer powinien utworzyć wątek który będzie porozumiewał się z tym klientem. Obiekty reprezentujące wątki możesz przechowywać za pomocą bibliotecznej implementacji listy java.util.ArrayList.
+
+
+Z. Dendzik, 2021
