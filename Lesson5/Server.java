@@ -5,27 +5,22 @@ public class Server {
     public static final int PORT = 50007;
 
     public static void main(String args[]) throws IOException {
-        //tworzenie gniazda serwerowego
         ServerSocket serv;
         serv = new ServerSocket(PORT);
 
-        //oczekiwanie na polaczenie i tworzenie gniazda sieciowego
         System.out.println("Nasluchuje: " + serv);
         Socket sock;
         sock = serv.accept();
         System.out.println("Jest polaczenie: " + sock);
 
-                    //tworzenie strumieni danych pobieranych z klawiatury i dostarczanych do socketu
                     BufferedReader klaw;
                     klaw = new BufferedReader(new InputStreamReader(System.in));
                     PrintWriter outp;
                     outp = new PrintWriter(sock.getOutputStream());
 
-        //tworzenie strumienia danych pobieranych z gniazda sieciowego
         BufferedReader inp;
         inp = new BufferedReader(new InputStreamReader(sock.getInputStream()));
 
-        //komunikacja - czytanie danych ze strumienia
         String str;
         do {
             str = inp.readLine();
@@ -43,9 +38,6 @@ public class Server {
                     }
 
         }while(!str.equalsIgnoreCase("exit"));
-
-        //zamykanie polaczenia
-
         inp.close();
         sock.close();
         serv.close();
